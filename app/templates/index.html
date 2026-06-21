@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Integración Numérica</title>
+    <style>
+        body { font-family: sans-serif; margin: 2em; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <h1>Calculadora de Integración Numérica</h1>
+
+    <form method="post">
+        <label for="funcion">Función (en términos de x):</label><br>
+        <input type="text" id="funcion" name="funcion" value="{{ funcion }}" required size="50"><br><br>
+
+        <label for="limite_a">Límite inferior (a):</label><br>
+        <input type="text" id="limite_a" name="limite_a" value="{{ a }}" required><br><br>
+
+        <label for="limite_b">Límite superior (b):</label><br>
+        <input type="text" id="limite_b" name="limite_b" value="{{ b }}" required><br><br>
+
+        <label for="subintervalos_n">Número de subintervalos (n):</label><br>
+        <input type="number" id="subintervalos_n" name="subintervalos_n" value="{{ n }}" min="1"><br><br>
+
+        <label for="metodo">Método de integración:</label><br>
+        <select id="metodo" name="metodo">
+            <option value="trapecio_simple" {% if metodo_act == 'trapecio_simple' %}selected{% endif %}>Trapecio Simple</option>
+            <option value="trapecio_compuesto" {% if metodo_act == 'trapecio_compuesto' %}selected{% endif %}>Trapecio Compuesto</option>
+            <option value="simpson_13_simple" {% if metodo_act == 'simpson_13_simple' %}selected{% endif %}>Simpson 1/3 Simple</option>
+            <option value="simpson_13_compuesto" {% if metodo_act == 'simpson_13_compuesto' %}selected{% endif %}>Simpson 1/3 Compuesto</option>
+            <option value="simpson_38_simple" {% if metodo_act == 'simpson_38_simple' %}selected{% endif %}>Simpson 3/8 Simple</option>
+            <option value="simpson_38_compuesto" {% if metodo_act == 'simpson_38_compuesto' %}selected{% endif %}>Simpson 3/8 Compuesto</option>
+        </select><br><br>
+
+        <button type="submit">Calcular</button>
+    </form>
+
+    {% if resultado is not none %}
+        <h2>Resultado: {{ resultado }}</h2>
+    {% endif %}
+
+    {% if error %}
+        <h2 class="error">Error: {{ error }}</h2>
+    {% endif %}
+
+</body>
+</html>
