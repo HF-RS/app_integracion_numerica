@@ -1,9 +1,11 @@
 def simpson_13_simple(f, a, b):
     """
     Calcula la integral de f desde a hasta b usando la regla de Simpson 1/3 simple.
+    El valor 'n' no se pasa como parámetro porque este método evalúa toda el área en un solo tramo.
     """
-    m = (a + b) / 2
-    return (b - a) * (f(a) + 4 * f(m) + f(b)) / 6
+    x_m = (a + b) / 2
+    
+    return (b - a) * ((f(a) + 4 * f(x_m) + f(b)) / 6)
 
 def simpson_13_compuesto(f, a, b, n):
     """
@@ -14,11 +16,17 @@ def simpson_13_compuesto(f, a, b, n):
     
     h = (b - a) / n
     
-    # Suma de los términos con coeficiente 4 (índices impares)
-    suma_impares = sum(f(a + i * h) for i in range(1, n, 2))
+    suma_impares = 0
+    suma_pares = 0
     
-    # Suma de los términos con coeficiente 2 (índices pares)
-    suma_pares = sum(f(a + i * h) for i in range(2, n, 2))
+    for i in range(1, n, 2):
+        x_i = a + i * h
+        suma_impares += f(x_i)
+
+    for j in range(2, n, 2):
+        x_j = a + j * h
+        suma_pares += f(x_j)
+        
+    integral = (b - a) * (f(a) + 4 * suma_impares + 2 * suma_pares + f(b)) / (3 * n)
     
-    integral = (h / 3) * (f(a) + 4 * suma_impares + 2 * suma_pares + f(b))
     return integral

@@ -7,31 +7,36 @@ from app.metodos.simpson_38 import simpson_38_simple, simpson_38_compuesto
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    # Variables iniciales por defecto para el formulario
     resultado = None
     error = None
     funcion_original = ""
     limite_a = ""
     limite_b = ""
-    subintervalos_n = 2  # Valor inicial recomendado
+    subintervalos_n = 2  
     metodo_seleccionado = "trapecio_simple"
 
     if request.method == 'POST':
         try:
-            # 1. Recuperar los datos del formulario web
             funcion_original = request.form.get('funcion', '')
-            limite_a = float(request.form.get('limite_a'))
-            limite_b = float(request.form.get('limite_b'))
+            limite_a_raw = request.form.get('limite_a', '')
+            limite_b_raw = request.form.get('limite_b', '')
             metodo_seleccionado = request.form.get('metodo', 'trapecio_simple')
             
-            # Obtener subintervalos solo si el método es compuesto
             n_raw = request.form.get('subintervalos_n')
             subintervalos_n = int(n_raw) if n_raw else 1
 
-            # 2. Convertir el texto de la calculadora a una función matemática de Python
+            try:
+                limite_a = crear_funcion_matematica(limite_a_raw)(0)
+            except Exception:
+                raise ValueError(f"El límite inferior '{limite_a_raw}' no es una expresión válida.")
+
+            try:
+                limite_b = crear_funcion_matematica(limite_b_raw)(0)
+            except Exception:
+                raise ValueError(f"El límite superior '{limite_b_raw}' no es una expresión válida.")
+
             f = crear_funcion_matematica(funcion_original)
 
-            # 3. Evaluar la integral según el método seleccionado por el usuario
             if metodo_seleccionado == 'trapecio_simple':
                 resultado = trapecio_simple(f, limite_a, limite_b)
                 
@@ -54,13 +59,21 @@ def index():
                 error = "El método seleccionado no es válido."
 
         except ValueError as ve:
-            # Captura errores de validación matemática (como 'n' impar en Simpson 1/3)
+            # Errores de lógica del método
             error = str(ve)
+        except ZeroDivisionError:
+            # División entre cero
+            error = "Error matemático: Estás intentando realizar una división entre cero."
+        except ValueError:
+            # Errores de conversión numérica
+            error = "Error: Asegúrate de ingresar números o constantes válidas (ej: pi, e)."
         except Exception as e:
-            # Captura cualquier otro error inesperado (ej: división por cero al evaluar)
-            error = f"Ocurrió un error inesperado al calcular: {str(e)}"
+            # Captura de errores específicos de math
+            if "math domain error" in str(e).lower():
+                error = "Error de dominio matemático: Estás intentando calcular una raíz o logaritmo de un número negativo."
+            else:
+                error = f"Ocurrió un error inesperado: {str(e)}"
 
-    # Retorna la página HTML inyectándole las respuestas del backend
     return render_template(
         'index.html',
         resultado=resultado,
